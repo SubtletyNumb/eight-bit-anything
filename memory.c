@@ -52,40 +52,40 @@ void read_eight_bit_latch(eight_bit_d* db0, eight_bit_d* out)
     out->d[7] = db0->d[7];
 }
 
-void w_eight_edg_trg_ff(bool d7, bool d6, bool5, bool d4,
+void w_eight_edg_trg_ff(bool d7, bool d6, bool d5, bool d4,
                         bool d3, bool d2, bool d1, bool d0,
                         bool clock, edge_ff* ffs)
 {
 
-    if(clock && !ffs->d[0].c)
+    if(clock && !ffs[0].c)
     {
-        ffs->[7].q = d7;
-        ffs->[7].qn = !d7;
+        ffs[7].q = d7;
+        ffs[7].qn = !d7;
 
-        ffs->[6].q = d6;
-        ffs->[6].qn = !d6;
+        ffs[6].q = d6;
+        ffs[6].qn = !d6;
 
-        ffs->[5].q = d5;
-        ffs->[5].qn = !d5;
+        ffs[5].q = d5;
+        ffs[5].qn = !d5;
 
-        ffs->[4].q = d4;
-        ffs->[4].qn = !d4;
+        ffs[4].q = d4;
+        ffs[4].qn = !d4;
 
-        ffs->[3].q = d3;
-        ffs->[3].qn = !d3;
+        ffs[3].q = d3;
+        ffs[3].qn = !d3;
 
-        ffs->[2].q = d2;
-        ffs->[2].qn = !d2;
+        ffs[2].q = d2;
+        ffs[2].qn = !d2;
 
-        ffs->[1].q = d1;
-        ffs->[1].qn = !d1;
+        ffs[1].q = d1;
+        ffs[1].qn = !d1;
 
-        ffs->[0].q = d0;
-        ffs->[0].qn = !d0;
+        ffs[0].q = d0;
+        ffs[0].qn = !d0; 
     }
     for(int i = 7; i >= 0; i--)
     {
-        ffs->d[i].c = clock;
+        ffs[i].c = clock;
     }
 }
 

@@ -42,6 +42,12 @@ void read_three_times_eight_ram(bool a2, bool a1, bool a0,
 void write_eight_bit_latch(bool w,
                            bool d7, bool d6, bool d5, bool d4, bool d3, bool d2, bool d1, bool d0,
                            eight_bit_d* db0);
+						   
+void w_eight_edg_trg_ff(bool d7, bool d6, bool d5, bool d4,
+                        bool d3, bool d2, bool d1, bool d0,
+                        bool clock, edge_ff* ffs);
+						
+void read_eight_bit_latch(eight_bit_d* db0, eight_bit_d* out);						
 
 void write_three_times_eight_ram(bool a2, bool a1, bool a0,
                                  bool w,

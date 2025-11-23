@@ -21,7 +21,19 @@ int main(int argc, char* argv[])
 
     eight_bit_d my_ram[256];
 	
-	eight_bit_d acc = { {0, 0, 0, 0, 0, 0, 0, 0 } };
+	
+	
+	//ACUMULATOR 
+	edge_ff ffACC00 = { 0, 0, 0 };
+    edge_ff ffACC01 = { 0, 0, 0 };
+    edge_ff ffACC02 = { 0, 0, 0 };
+    edge_ff ffACC03 = { 0, 0, 0 };
+    edge_ff ffACC04 = { 0, 0, 0 };
+    edge_ff ffACC05 = { 0, 0, 0 };
+    edge_ff ffACC06 = { 0, 0, 0 };
+    edge_ff ffACC07 = { 0, 0, 0 };
+	edge_ff acc[8] = { ffACC07, ffACC06, ffACC05, ffACC04,
+							ffACC03, ffACC02, ffACC01, ffACC00 };
 
     write_256x8_ram(
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -95,22 +107,23 @@ int main(int argc, char* argv[])
 		
 			 
 		eight_bit_adder(
-		acc.d[7], acc.d[6], acc.d[5], acc.d[4], acc.d[3], acc.d[2], acc.d[1], acc.d[0],
+		acc[7].q, acc[6].q, acc[5].q, acc[4].q, acc[3].q, acc[2].q, acc[1].q, acc[0].q,
 		data_read_out.d[7], data_read_out.d[6], data_read_out.d[5], data_read_out.d[4],
 		data_read_out.d[3], data_read_out.d[2], data_read_out.d[1], data_read_out.d[0],
 		0,
 		&adder_out);
 		
-		write_eight_bit_latch(clock, 
+		w_eight_edg_trg_ff( 
 		adder_out.d[7], adder_out.d[6], adder_out.d[5], adder_out.d[4], adder_out.d[3], adder_out.d[2], 
 		adder_out.d[1], adder_out.d[0],
-		&acc);
+		clock,
+		acc);
 		
 		printf("TOTAL OUT:\n");
 		printf("%d%d%d%d%d%d%d%d\n\n",
-               acc.d[7], acc.d[6],
-               acc.d[5], acc.d[4], acc.d[3],
-               acc.d[2], acc.d[1], acc.d[0]
+               acc[7].q, acc[6].q,
+               acc[5].q, acc[4].q, acc[3].q,
+               acc[2].q, acc[1].q, acc[0].q
               );
 		
 	}
