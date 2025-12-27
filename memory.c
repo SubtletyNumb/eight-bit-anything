@@ -52,12 +52,12 @@ void read_eight_bit_latch(eight_bit_d* db0, eight_bit_d* out)
     out->d[7] = db0->d[7];
 }
 
-void w_eight_edg_trg_ff(bool d7, bool d6, bool d5, bool d4,
+void wrt_8_edge_trgd_ff(bool d7, bool d6, bool d5, bool d4,
                         bool d3, bool d2, bool d1, bool d0,
-                        bool clock, edge_ff* ffs)
+                        bool clk, edge_ff* ffs)
 {
 
-    if(clock && !ffs[0].c)
+    if(clk && !ffs[0].c)
     {
         ffs[7].q = d7;
         ffs[7].qn = !d7;
@@ -81,12 +81,20 @@ void w_eight_edg_trg_ff(bool d7, bool d6, bool d5, bool d4,
         ffs[1].qn = !d1;
 
         ffs[0].q = d0;
-        ffs[0].qn = !d0; 
+        ffs[0].qn = !d0;
     }
     for(int i = 7; i >= 0; i--)
     {
-        ffs[i].c = clock;
+        ffs[i].c = clk;
     }
+}
+
+void read_8x1_edge_trgd_ff(edge_ff* ffs, eight_bit_d* out) 
+{
+	for(int i = 7; i >= 0; i--) 
+	{
+		out->d[i] = ffs[i].q;
+	}
 }
 
 

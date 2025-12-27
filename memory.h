@@ -23,7 +23,10 @@ typedef struct
     bool d[2];
 } two_bit_d;
 
+
 int eight_to_one_idx(bool a2, bool a1, bool a0);
+int eight_to_256_idx(bool a7, bool a6, bool a5, bool a4, bool a3, bool a2, bool a1, bool a0);
+
 
 bool eight_to_one_selector(bool a2, bool a1, bool a0, eight_bit_d* data);
 
@@ -38,16 +41,17 @@ void read_three_times_eight_ram(bool a2, bool a1, bool a0,
                                 eight_bit_d* db4, eight_bit_d* db5,
                                 eight_bit_d* db6, eight_bit_d* db7
                                );
+							   
+void read_8x1_edge_trgd_ff(edge_ff* ffs, eight_bit_d* out);
+
+void wrt_8_edge_trgd_ff(bool d7, bool d6, bool d5, bool d4,
+						bool d3, bool d2, bool d1, bool d0,
+                        bool clk, edge_ff* ffs);							   
+							   
 
 void write_eight_bit_latch(bool w,
                            bool d7, bool d6, bool d5, bool d4, bool d3, bool d2, bool d1, bool d0,
                            eight_bit_d* db0);
-						   
-void w_eight_edg_trg_ff(bool d7, bool d6, bool d5, bool d4,
-                        bool d3, bool d2, bool d1, bool d0,
-                        bool clock, edge_ff* ffs);
-						
-void read_eight_bit_latch(eight_bit_d* db0, eight_bit_d* out);						
 
 void write_three_times_eight_ram(bool a2, bool a1, bool a0,
                                  bool w,
