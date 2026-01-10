@@ -55,8 +55,7 @@ int main(int argc, char *argv[]) {
 
   edge_ff insc_ff_0 = {0, 0, 0};
   edge_ff insc_ff_1 = {0, 0, 0};
-  edge_ff insc_ff_2 = {0, 0, 0};
-  edge_ff insc[8] = {insc_ff_0, insc_ff_1, insc_ff_2};
+  edge_ff insc[2] = {insc_ff_0, insc_ff_1};
 
   // INITIAL INSTRUCTIONS
   write_256x8_ram(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, ram);
@@ -67,8 +66,8 @@ int main(int argc, char *argv[]) {
 
   while (true) {
     clk = !clk;
-    sleep(500);
-    system("cls");
+    sleep(1);
+    system("clear");
 
     // UPDATE COUNTER
     edg_ff_upt(&ffA00, clk, ffA00.qn);
@@ -92,22 +91,17 @@ int main(int argc, char *argv[]) {
            ram_out.d[4], ram_out.d[3], ram_out.d[2], ram_out.d[1],
            ram_out.d[0]);
 
-    
-    
-    
-    
     edg_ff_upt(&insc_ff_0, clk, insc_ff_0.qn);
     edg_ff_upt(&insc_ff_1, insc_ff_0.qn, insc_ff_1.qn);
-    edg_ff_upt(&insc_ff_2, insc_ff_1.qn, insc_ff_2.qn);
-        printf("INSTRUCTION COUNTER OUT:\n");
-    printf("%d%d%d\n\n", insc_ff_2.q, insc_ff_1.q, insc_ff_0.q);
-    
+    printf("INSTRUCTION COUNTER OUT:\n");
+    printf("%d%d\n\n", insc_ff_1.q, insc_ff_0.q);
 
-
-    
+    wrt_ins_latch(insc_ff_1.q, insc_ff_0.q, ram_out.d[7], ram_out.d[6],
+                  ram_out.d[5], ram_out.d[4], ram_out.d[3], ram_out.d[2],
+                  ram_out.d[1], ram_out.d[0], ins);
 
     /* PROCESS TO ADD ACCUMULATOR WITH RAM OUT */
-    
+
     /*
 
     eight_bit_adder(acc[7].q, acc[6].q, acc[5].q, acc[4].q, acc[3].q, acc[2].q,
