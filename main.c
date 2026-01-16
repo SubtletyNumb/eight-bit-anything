@@ -8,6 +8,7 @@
 
 int main() {
   bool clk = 1;
+  long long clk_iterations = 0;
 
   // PROGRAM COUNTER
   edge_ff ffA00 = {0, 0, 0, 0, 0};
@@ -59,6 +60,7 @@ int main() {
                      &acc_ff_4, &acc_ff_5, &acc_ff_6, &acc_ff_7};
 
   // INSTRUCTION LATCH
+  eight_bit_d acc_latch_in;
   edge_ff ins_ff_0 = {0, 0, 0, 0, 0};
   edg_ff_init(&ins_ff_0);
   edge_ff ins_ff_1 = {0, 0, 0, 0, 0};
@@ -78,6 +80,7 @@ int main() {
 
   edge_ff *ins[8] = {&ins_ff_0, &ins_ff_1, &ins_ff_2, &ins_ff_3,
                      &ins_ff_4, &ins_ff_5, &ins_ff_6, &ins_ff_7};
+  // 0x7fffffffcd9b index0 ins_ff_0
 
   // ADR OUT FOR RAM LATCH
   edge_ff adr_ff_0 = {0, 0, 0, 0, 0};
@@ -117,12 +120,16 @@ int main() {
 
   // DATA
   write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, ram);
-
+  bool read_from_adr_latch_s = 0;
   while (true) {
     clk = !clk;
-    sleep(1);
+    sleep(3);
     system("clear");
+    if (clk) {
+      clk_iterations++;
+    }
 
+    printf("CLOCK: %d\tCLK EDG RISINGS:%lld\n", clk, clk_iterations);
     // UPDATE COUNTER
     edg_ff_calc(&ffA00, clk, ffA00.qn);
     edg_ff_calc(&ffA01, ffA00.qn_next, ffA01.qn_next);
@@ -145,10 +152,14 @@ int main() {
     printf("%d%d%d%d%d%d%d%d\n\n", ffA07.q, ffA06.q, ffA05.q, ffA04.q, ffA03.q,
            ffA02.q, ffA01.q, ffA00.q);
 
+    // UPDATE ADDR IN FOR RAM
+    // printf("\nINS ARR POINTER RIGHT BEFORE SEL 2 TO 1 RAM: %p\n\n",
+    // (void*)&ins[1]);
 
-    //UPDATE ADDR IN FOR RAM
+    read_from_adr_latch_s = get_inst_code_from_ffs(ins) == LDA &&
+                            (insc_ff_1.q && !insc_ff_0.q && clk);
     eight_bit_edg_ff_in_sel2_to_1(ff_pc, adr, &ram_adr_in,
-                        get_inst_code_from_ffs(ins) == LDA && (!insc_ff_0.q && insc_ff_1.q));
+                                  read_from_adr_latch_s);
 
     read_256x8_ram(ram_adr_in.d[7], ram_adr_in.d[6], ram_adr_in.d[5],
                    ram_adr_in.d[4], ram_adr_in.d[3], ram_adr_in.d[2],
@@ -166,12 +177,28 @@ int main() {
     printf("INSTRUCTION COUNTER OUT:\n");
     printf("%d%d%d\n\n", insc_ff_2.q, insc_ff_1.q, insc_ff_0.q);
 
-
+    // printf("\nINS ARR POINTER IN WHILE LOOP: %p", (void*)&ins[1]);
     wrt_ins_latch(insc_ff_1.q, insc_ff_0.q, clk, &ram_out, ins);
 
     printf("INSTRUCTION CODE:\n");
-    printf("%d%d%d%d%d%d%d%d\n\n", ins[7]->q, ins[6]->q, ins[5]->q, ins[4]->q,
+    printf("%d%d%d%d%d%d%d%d\n", ins[7]->q, ins[6]->q, ins[5]->q, ins[4]->q,
            ins[3]->q, ins[2]->q, ins[1]->q, ins[0]->q);
+
+    write_eight_bit_ff_from_latch(&ram_out, adr,
+                                  (insc_ff_1.q && !insc_ff_0.q && clk));
+
+    printf("\nADDRESS LATCH OUT:\n");
+    printf("%d%d%d%d%d%d%d%d\n\n", adr[7]->q, adr[6]->q, adr[5]->q, adr[4]->q,
+           adr[3]->q, adr[2]->q, adr[1]->q, adr[0]->q);
+
+    //     eight_bit_edg_ff_in_sel2_to_1(ff_pc, adr, &ram_adr_in,
+    //                  get_inst_code_from_ffs(ins) == LDA && (insc_ff_1.q &&
+    //                  insc_ff_0.q && clk));
+    write_eight_bit_ff_from_latch(&ram_out, acc,
+                                  (insc_ff_1.q && insc_ff_0.q && clk));
+    printf("ACCUMULATOR OUT:\n");
+    printf("%d%d%d%d%d%d%d%d\n", acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q,
+           acc[3]->q, acc[2]->q, acc[1]->q, acc[0]->q);
 
     /* PROCESS TO ADD ACCUMULATOR WITH RAM OUT */
 
