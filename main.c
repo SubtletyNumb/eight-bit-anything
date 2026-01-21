@@ -37,9 +37,10 @@ int main() {
   eight_bit_d ram_out = {{0, 0, 0, 0, 0, 0, 0, 0}};
 
   // ADDER OUT
-  eight_bit_adder_out adder_out = {{0, 0, 0, 0, 0, 0, 0, 0, 0}};
+  eight_bit_d adder_out = {{0, 0, 0, 0, 0, 0, 0, 0}};
 
   // ACCUMULATOR
+  eight_bit_d acc_in = {{0, 0, 0, 0, 0, 0, 0, 0}};
   edge_ff acc_ff_0 = {0, 0, 0, 0, 0};
   edg_ff_init(&acc_ff_0);
   edge_ff acc_ff_1 = {0, 0, 0, 0, 0};
@@ -110,20 +111,36 @@ int main() {
   edge_ff insc_ff_2 = {0, 0, 0, 0, 0};
   edg_ff_init(&insc_ff_2);
 
+  // CONTROL SIGNALS
+  bool ctrl_sig_read_from_adr_latch = 0;
+  bool ctrl_sig_write_ram = 0;
+  bool ctrl_sig_add = 0;
+
+  bool sum_cin = 0;
+  bool sum_cout = 0;
+
   // INITIAL INSTRUCTIONS
-
-  // LOD
-
   write_256x8_ram(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, ram);
+
+  // LDA
   write_256x8_ram(0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
   write_256x8_ram(0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, ram);
 
+  // ADD
+  write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, ram);
+  write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
+
+  // STA
+  write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, ram);
+  write_256x8_ram(0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
+
   // DATA
   write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, ram);
-  bool read_from_adr_latch_s = 0;
+  write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, ram);
+
   while (true) {
     clk = !clk;
-    sleep(3);
+    sleep(1);
     system("clear");
     if (clk) {
       clk_iterations++;
@@ -152,14 +169,14 @@ int main() {
     printf("%d%d%d%d%d%d%d%d\n\n", ffA07.q, ffA06.q, ffA05.q, ffA04.q, ffA03.q,
            ffA02.q, ffA01.q, ffA00.q);
 
-    // UPDATE ADDR IN FOR RAM
-    // printf("\nINS ARR POINTER RIGHT BEFORE SEL 2 TO 1 RAM: %p\n\n",
-    // (void*)&ins[1]);
+    int ins_code = get_inst_code_from_ffs(ins);
+    ctrl_sig_read_from_adr_latch =
+        (ins_code == LDA || ins_code == STA || ins_code == ADD) &&
+        (insc_ff_1.q && !insc_ff_0.q && clk);
 
-    read_from_adr_latch_s = get_inst_code_from_ffs(ins) == LDA &&
-                            (insc_ff_1.q && !insc_ff_0.q && clk);
+    // MAKE SELECTION OF ADDR IN FOR RAM
     eight_bit_edg_ff_in_sel2_to_1(ff_pc, adr, &ram_adr_in,
-                                  read_from_adr_latch_s);
+                                  ctrl_sig_read_from_adr_latch);
 
     read_256x8_ram(ram_adr_in.d[7], ram_adr_in.d[6], ram_adr_in.d[5],
                    ram_adr_in.d[4], ram_adr_in.d[3], ram_adr_in.d[2],
@@ -177,13 +194,14 @@ int main() {
     printf("INSTRUCTION COUNTER OUT:\n");
     printf("%d%d%d\n\n", insc_ff_2.q, insc_ff_1.q, insc_ff_0.q);
 
-    // printf("\nINS ARR POINTER IN WHILE LOOP: %p", (void*)&ins[1]);
+    // WRITE INSTRUCTION LATCH
     wrt_ins_latch(insc_ff_1.q, insc_ff_0.q, clk, &ram_out, ins);
 
     printf("INSTRUCTION CODE:\n");
     printf("%d%d%d%d%d%d%d%d\n", ins[7]->q, ins[6]->q, ins[5]->q, ins[4]->q,
            ins[3]->q, ins[2]->q, ins[1]->q, ins[0]->q);
 
+    // WRITE ADDRESS LATCH
     write_eight_bit_ff_from_latch(&ram_out, adr,
                                   (insc_ff_1.q && !insc_ff_0.q && clk));
 
@@ -191,32 +209,40 @@ int main() {
     printf("%d%d%d%d%d%d%d%d\n\n", adr[7]->q, adr[6]->q, adr[5]->q, adr[4]->q,
            adr[3]->q, adr[2]->q, adr[1]->q, adr[0]->q);
 
-    //     eight_bit_edg_ff_in_sel2_to_1(ff_pc, adr, &ram_adr_in,
-    //                  get_inst_code_from_ffs(ins) == LDA && (insc_ff_1.q &&
-    //                  insc_ff_0.q && clk));
-    write_eight_bit_ff_from_latch(&ram_out, acc,
-                                  (insc_ff_1.q && insc_ff_0.q && clk));
+    ctrl_sig_write_ram =
+        ins_code == STA && (insc_ff_1.q && !insc_ff_0.q && clk);
+
+    write_256x8_ram(adr[7]->q, adr[6]->q, adr[5]->q, adr[4]->q, adr[3]->q,
+                    adr[2]->q, adr[1]->q, adr[0]->q, ctrl_sig_write_ram,
+                    acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q,
+                    acc[2]->q, acc[1]->q, acc[0]->q, ram);
+
+    ctrl_sig_add = ins_code == ADD && (insc_ff_1.q && insc_ff_0.q && clk);
+
+    eight_bit_adder(ctrl_sig_add, sum_cin, &sum_cout, &adder_out, acc[7]->q,
+                    acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q, acc[2]->q,
+                    acc[1]->q, acc[0]->q, ram_out.d[7], ram_out.d[6],
+                    ram_out.d[5], ram_out.d[4], ram_out.d[3], ram_out.d[2],
+                    ram_out.d[1], ram_out.d[0]);
+
+    eight_bit_d_in_sel2_to_1(&adder_out, &ram_out, &acc_in,
+                             get_inst_code_from_ffs(ins) == LDA &&
+                                 (insc_ff_1.q && insc_ff_0.q && clk));
+    // WRITE ACCUMULATOR LATCH
+    write_eight_bit_ff_from_latch(&acc_in, acc,
+                                  (insc_ff_1.q && insc_ff_0.q && clk &&
+                                   (get_inst_code_from_ffs(ins) == LDA ||
+                                    get_inst_code_from_ffs(ins) == ADD)));
+
     printf("ACCUMULATOR OUT:\n");
     printf("%d%d%d%d%d%d%d%d\n", acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q,
            acc[3]->q, acc[2]->q, acc[1]->q, acc[0]->q);
 
-    /* PROCESS TO ADD ACCUMULATOR WITH RAM OUT */
-
-    /*
-
-    eight_bit_adder(acc[7].q, acc[6].q, acc[5].q, acc[4].q, acc[3].q, acc[2].q,
-                    acc[1].q, acc[0].q, ram_out.d[7], ram_out.d[6],
-                    ram_out.d[5], ram_out.d[4], ram_out.d[3], ram_out.d[2],
-                    ram_out.d[1], ram_out.d[0], 0, &adder_out);
-
-    wrt_8_edge_trgd_ff(adder_out.d[7], adder_out.d[6], adder_out.d[5],
-                       adder_out.d[4], adder_out.d[3], adder_out.d[2],
-                       adder_out.d[1], adder_out.d[0], clk, acc);
-                       */
-
-    // printf("TOTAL OUT:\n");
-    // printf("%d%d%d%d%d%d%d%d\n\n", acc[7].q, acc[6].q, acc[5].q, acc[4].q,
-    //        acc[3].q, acc[2].q, acc[1].q, acc[0].q);
+    // RESET INSTRUCTION CLOCK COUNTER
+    if (insc_ff_1.q && insc_ff_0.q && !clk) {
+      edg_ff_init(&insc_ff_0);
+      edg_ff_init(&insc_ff_1);
+    }
   }
   return 0;
 }

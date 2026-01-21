@@ -44,3 +44,15 @@ void eight_bit_edg_ff_in_sel2_to_1(edge_ff *d1[], edge_ff *d0[],
   out->d[1] = switcher > 0 ? d0[1]->q : d1[1]->q;
   out->d[0] = switcher > 0 ? d0[0]->q : d1[0]->q;
 }
+
+void eight_bit_d_in_sel2_to_1(eight_bit_d *d1, eight_bit_d *d0,
+                                   eight_bit_d *out, bool switcher) {
+  out->d[7] = switcher > 0 ? d0->d[7] : d1->d[7];
+  out->d[6] = switcher > 0 ? d0->d[6] : d1->d[6];
+  out->d[5] = switcher > 0 ? d0->d[5] : d1->d[5];
+  out->d[4] = switcher > 0 ? d0->d[4] : d1->d[4];
+  out->d[3] = switcher > 0 ? d0->d[3] : d1->d[3];
+  out->d[2] = switcher > 0 ? d0->d[2] : d1->d[2];
+  out->d[1] = switcher > 0 ? d0->d[1] : d1->d[1];
+  out->d[0] = switcher > 0 ? d0->d[0] : d1->d[0];
+}
