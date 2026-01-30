@@ -82,6 +82,25 @@ void write_eight_bit_ff_from_latch(eight_bit_d *db0, edge_ff *out[], bool clk) {
   edg_ff_upt(out[7], clk);
 }
 
+void write_eight_bit_ff_from_ff(edge_ff *db0[], edge_ff *out[], bool clk) {
+  edg_ff_calc(out[0], clk, db0[0]->q);
+  edg_ff_upt(out[0], clk);
+  edg_ff_calc(out[1], clk, db0[1]->q);
+  edg_ff_upt(out[1], clk);
+  edg_ff_calc(out[2], clk, db0[2]->q);
+  edg_ff_upt(out[2], clk);
+  edg_ff_calc(out[3], clk, db0[3]->q);
+  edg_ff_upt(out[3], clk);
+  edg_ff_calc(out[4], clk, db0[4]->q);
+  edg_ff_upt(out[4], clk);
+  edg_ff_calc(out[5], clk, db0[5]->q);
+  edg_ff_upt(out[5], clk);
+  edg_ff_calc(out[6], clk, db0[6]->q);
+  edg_ff_upt(out[6], clk);
+  edg_ff_calc(out[7], clk, db0[7]->q);
+  edg_ff_upt(out[7], clk);
+}
+
 void read_8x1_edge_trgd_ff(edge_ff *ffs, eight_bit_d *out) {
   for (int i = 7; i >= 0; i--) {
     out->d[i] = ffs[i].q;

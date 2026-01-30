@@ -36,6 +36,8 @@ void write_eight_bit_ff(eight_bit_d *db0, edge_ff *out, bool clk);
 
 void write_eight_bit_ff_from_latch(eight_bit_d *db0, edge_ff *out[], bool clk);
 
+void write_eight_bit_ff_from_ff(edge_ff *db0[], edge_ff *out[], bool clk);
+
 void write_eight_bit_latch(bool w, bool d7, bool d6, bool d5, bool d4, bool d3,
                            bool d2, bool d1, bool d0, eight_bit_d *db0);
 

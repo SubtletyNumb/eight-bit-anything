@@ -4,6 +4,7 @@ typedef enum {
   LDA = 10,
   STA = 20,
   ADD = 30,
+  JMP = 50,
   HLT = 255,
 } INSTRUCTIONS;
 
