@@ -255,3 +255,26 @@ int main() {
   }
   return 0;
 }
+
+
+/*
+
+
+simulation in mind
+C				T1
+0				 1
+
+ff1			  								
+d=1			0			
+c=0			1
+q=0 		1
+qn=1    0
+
+ff2			
+d=1			1 		    
+c=1			0
+q=0			
+qn=1
+
+
+*/
