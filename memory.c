@@ -111,10 +111,7 @@ void edg_ff_calc(edge_ff *st0, bool c, bool d) {
   if (c && !st0->c) {
     st0->q_next = d;
     st0->qn_next = !d;
-  } else {
-    st0->q_next = st0->q;
-    st0->qn_next = st0->qn;
-  }
+  } 
 }
 
 void edg_ff_upt(edge_ff *st0, bool c) {

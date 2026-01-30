@@ -1,7 +1,8 @@
 #include "./arithmetic.h"
 #include "./control.h"
 #include "./memory.h"
-#include "unistd.h"
+// #include "unistd.h"
+#include "windows.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,8 +12,8 @@ int main() {
   long long clk_iterations = 0;
 
   // PROGRAM COUNTER
-  edge_ff ffA00 = {0, 1, 0, 0, 1};
-  edge_ff ffA01 = {0, 1, 1, 0, 1};
+  edge_ff ffA00 = {0, 1, 0, 0, 0};
+  edge_ff ffA01 = {0, 1, 1, 0, 0};
   edge_ff ffA02 = {0, 0, 0, 0, 0};
   edg_ff_init(&ffA02);
   edge_ff ffA03 = {0, 0, 0, 0, 0};
@@ -143,7 +144,7 @@ int main() {
 
   while (true) {
     clk = !clk;
-    sleep(1);
+    Sleep(1000);
     system("clear");
     if (clk) {
       clk_iterations++;
@@ -152,9 +153,9 @@ int main() {
     printf("CLOCK: %d\tCLK EDG RISINGS:%lld\n", clk, clk_iterations);
     // UPDATE COUNTER
     edg_ff_calc(&ffA00, clk, ffA00.qn);
+    edg_ff_calc(&ffA01, ffA00.qn_next, ffA01.qn_next);
     edg_ff_upt(&ffA00, clk);
-    edg_ff_calc(&ffA01, ffA00.qn, ffA01.qn);
-    edg_ff_upt(&ffA01, ffA00.qn);
+    edg_ff_upt(&ffA01, ffA00.qn_next);
     // edg_ff_calc(&ffA02, ffA01.qn && clk, ffA02.qn_next);
     // edg_ff_upt(&ffA02, ffA01.qn_next);
     // edg_ff_calc(&ffA03, ffA02.qn_next && clk, ffA03.qn_next);
@@ -168,91 +169,91 @@ int main() {
     // edg_ff_upt(&ffA06, ffA05.qn_next);
     // edg_ff_upt(&ffA07, ffA06.qn_next);
 
-    printf("COUNTER OUT:\n");
-    printf("%d%d%d%d%d%d%d%d\n\n", ffA07.q, ffA06.q, ffA05.q, ffA04.q, ffA03.q,
-           ffA02.q, ffA01.q, ffA00.q);
+//     printf("COUNTER OUT:\n");
+//     printf("%d%d%d%d%d%d%d%d\n\n", ffA07.q, ffA06.q, ffA05.q, ffA04.q, ffA03.q,
+//            ffA02.q, ffA01.q, ffA00.q);
 
-    int ins_code = get_inst_code_from_ffs(ins);
-    ctrl_sig_read_from_adr_latch = (ins_code == LDA || ins_code == STA ||
-                                    ins_code == ADD || ins_code == JMP) &&
-                                   (insc_ff_1.q && !insc_ff_0.q && clk);
+//     int ins_code = get_inst_code_from_ffs(ins);
+//     ctrl_sig_read_from_adr_latch = (ins_code == LDA || ins_code == STA ||
+//                                     ins_code == ADD || ins_code == JMP) &&
+//                                    (insc_ff_1.q && !insc_ff_0.q && clk);
 
-    // MAKE SELECTION OF ADDR IN FOR RAM
-    eight_bit_edg_ff_in_sel2_to_1(ff_pc, adr, &ram_adr_in,
-                                  ctrl_sig_read_from_adr_latch);
+//     // MAKE SELECTION OF ADDR IN FOR RAM
+//     eight_bit_edg_ff_in_sel2_to_1(ff_pc, adr, &ram_adr_in,
+//                                   ctrl_sig_read_from_adr_latch);
 
-    read_256x8_ram(ram_adr_in.d[7], ram_adr_in.d[6], ram_adr_in.d[5],
-                   ram_adr_in.d[4], ram_adr_in.d[3], ram_adr_in.d[2],
-                   ram_adr_in.d[1], ram_adr_in.d[0], ram, &ram_out);
+//     read_256x8_ram(ram_adr_in.d[7], ram_adr_in.d[6], ram_adr_in.d[5],
+//                    ram_adr_in.d[4], ram_adr_in.d[3], ram_adr_in.d[2],
+//                    ram_adr_in.d[1], ram_adr_in.d[0], ram, &ram_out);
 
-    printf("RAM OUT:\n");
-    printf("%d%d%d%d%d%d%d%d\n\n", ram_out.d[7], ram_out.d[6], ram_out.d[5],
-           ram_out.d[4], ram_out.d[3], ram_out.d[2], ram_out.d[1],
-           ram_out.d[0]);
+//     printf("RAM OUT:\n");
+//     printf("%d%d%d%d%d%d%d%d\n\n", ram_out.d[7], ram_out.d[6], ram_out.d[5],
+//            ram_out.d[4], ram_out.d[3], ram_out.d[2], ram_out.d[1],
+//            ram_out.d[0]);
 
-    edg_ff_calc(&insc_ff_0, clk, insc_ff_0.qn);
-    edg_ff_calc(&insc_ff_1, insc_ff_0.qn_next && clk, insc_ff_1.qn_next);
-    edg_ff_upt(&insc_ff_0, clk);
-    edg_ff_upt(&insc_ff_1, insc_ff_0.qn_next);
-    printf("INSTRUCTION COUNTER OUT:\n");
-    printf("%d%d%d\n\n", insc_ff_2.q, insc_ff_1.q, insc_ff_0.q);
+//     edg_ff_calc(&insc_ff_0, clk, insc_ff_0.qn);
+//     edg_ff_calc(&insc_ff_1, insc_ff_0.qn_next && clk, insc_ff_1.qn_next);
+//     edg_ff_upt(&insc_ff_0, clk);
+//     edg_ff_upt(&insc_ff_1, insc_ff_0.qn_next);
+//     printf("INSTRUCTION COUNTER OUT:\n");
+//     printf("%d%d%d\n\n", insc_ff_2.q, insc_ff_1.q, insc_ff_0.q);
 
-    // WRITE INSTRUCTION LATCH
-    wrt_ins_latch(insc_ff_1.q, insc_ff_0.q, clk, &ram_out, ins);
+//     // WRITE INSTRUCTION LATCH
+//     wrt_ins_latch(insc_ff_1.q, insc_ff_0.q, clk, &ram_out, ins);
 
-    printf("INSTRUCTION CODE:\n");
-    printf("%d%d%d%d%d%d%d%d\n", ins[7]->q, ins[6]->q, ins[5]->q, ins[4]->q,
-           ins[3]->q, ins[2]->q, ins[1]->q, ins[0]->q);
+//     printf("INSTRUCTION CODE:\n");
+//     printf("%d%d%d%d%d%d%d%d\n", ins[7]->q, ins[6]->q, ins[5]->q, ins[4]->q,
+//            ins[3]->q, ins[2]->q, ins[1]->q, ins[0]->q);
 
-    // WRITE ADDRESS LATCH
-    write_eight_bit_ff_from_latch(&ram_out, adr,
-                                  (insc_ff_1.q && !insc_ff_0.q && clk));
+//     // WRITE ADDRESS LATCH
+//     write_eight_bit_ff_from_latch(&ram_out, adr,
+//                                   (insc_ff_1.q && !insc_ff_0.q && clk));
 
-    printf("\nADDRESS LATCH OUT:\n");
-    printf("%d%d%d%d%d%d%d%d\n\n", adr[7]->q, adr[6]->q, adr[5]->q, adr[4]->q,
-           adr[3]->q, adr[2]->q, adr[1]->q, adr[0]->q);
+//     printf("\nADDRESS LATCH OUT:\n");
+//     printf("%d%d%d%d%d%d%d%d\n\n", adr[7]->q, adr[6]->q, adr[5]->q, adr[4]->q,
+//            adr[3]->q, adr[2]->q, adr[1]->q, adr[0]->q);
 
-    ctrl_sig_write_ram =
-        ins_code == STA && (insc_ff_1.q && !insc_ff_0.q && clk);
+//     ctrl_sig_write_ram =
+//         ins_code == STA && (insc_ff_1.q && !insc_ff_0.q && clk);
 
-    write_256x8_ram(adr[7]->q, adr[6]->q, adr[5]->q, adr[4]->q, adr[3]->q,
-                    adr[2]->q, adr[1]->q, adr[0]->q, ctrl_sig_write_ram,
-                    acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q,
-                    acc[2]->q, acc[1]->q, acc[0]->q, ram);
+//     write_256x8_ram(adr[7]->q, adr[6]->q, adr[5]->q, adr[4]->q, adr[3]->q,
+//                     adr[2]->q, adr[1]->q, adr[0]->q, ctrl_sig_write_ram,
+//                     acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q,
+//                     acc[2]->q, acc[1]->q, acc[0]->q, ram);
 
-    ctrl_sig_add = ins_code == ADD && (insc_ff_1.q && insc_ff_0.q && clk);
+//     ctrl_sig_add = ins_code == ADD && (insc_ff_1.q && insc_ff_0.q && clk);
 
-    eight_bit_adder(ctrl_sig_add, sum_cin, &sum_cout, &adder_out, acc[7]->q,
-                    acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q, acc[2]->q,
-                    acc[1]->q, acc[0]->q, ram_out.d[7], ram_out.d[6],
-                    ram_out.d[5], ram_out.d[4], ram_out.d[3], ram_out.d[2],
-                    ram_out.d[1], ram_out.d[0]);
+//     eight_bit_adder(ctrl_sig_add, sum_cin, &sum_cout, &adder_out, acc[7]->q,
+//                     acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q, acc[2]->q,
+//                     acc[1]->q, acc[0]->q, ram_out.d[7], ram_out.d[6],
+//                     ram_out.d[5], ram_out.d[4], ram_out.d[3], ram_out.d[2],
+//                     ram_out.d[1], ram_out.d[0]);
 
-    eight_bit_d_in_sel2_to_1(&adder_out, &ram_out, &acc_in,
-                             get_inst_code_from_ffs(ins) == LDA &&
-                                 (insc_ff_1.q && insc_ff_0.q && clk));
-    // WRITE ACCUMULATOR LATCH
-    write_eight_bit_ff_from_latch(&acc_in, acc,
-                                  (insc_ff_1.q && insc_ff_0.q && clk &&
-                                   (get_inst_code_from_ffs(ins) == LDA ||
-                                    get_inst_code_from_ffs(ins) == ADD)));
+//     eight_bit_d_in_sel2_to_1(&adder_out, &ram_out, &acc_in,
+//                              get_inst_code_from_ffs(ins) == LDA &&
+//                                  (insc_ff_1.q && insc_ff_0.q && clk));
+//     // WRITE ACCUMULATOR LATCH
+//     write_eight_bit_ff_from_latch(&acc_in, acc,
+//                                   (insc_ff_1.q && insc_ff_0.q && clk &&
+//                                    (get_inst_code_from_ffs(ins) == LDA ||
+//                                     get_inst_code_from_ffs(ins) == ADD)));
 
-    // WRITE JUMP
-    ctrl_sig_simple_jump =
-        ins_code == JMP && (insc_ff_1.q && !insc_ff_0.q && clk);
+//     // WRITE JUMP
+//     ctrl_sig_simple_jump =
+//         ins_code == JMP && (insc_ff_1.q && !insc_ff_0.q && clk);
 
-    write_eight_bit_ff_from_ff(adr, ff_pc, ctrl_sig_simple_jump);
+//     write_eight_bit_ff_from_ff(adr, ff_pc, ctrl_sig_simple_jump);
 
-    printf("ACCUMULATOR OUT:\n");
-    printf("%d%d%d%d%d%d%d%d\n", acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q,
-           acc[3]->q, acc[2]->q, acc[1]->q, acc[0]->q);
+//     printf("ACCUMULATOR OUT:\n");
+//     printf("%d%d%d%d%d%d%d%d\n", acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q,
+//            acc[3]->q, acc[2]->q, acc[1]->q, acc[0]->q);
 
-    // RESET INSTRUCTION CLOCK COUNTER
-    // if (insc_ff_1.q && insc_ff_0.q && !clk) {
-    //   edg_ff_init(&insc_ff_0);
-    //   edg_ff_init(&insc_ff_1);
-    // }
-  }
+//     // RESET INSTRUCTION CLOCK COUNTER
+//     // if (insc_ff_1.q && insc_ff_0.q && !clk) {
+//     //   edg_ff_init(&insc_ff_0);
+//     //   edg_ff_init(&insc_ff_1);
+//     // }
+//   }
   return 0;
 }
 
