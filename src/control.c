@@ -1,4 +1,4 @@
-#include "./memory.h"
+#include "./headers/memory.h"
 #include "stdio.h"
 
 int get_instruct_code(int d7, int d6, int d5, int d4, int d3, int d2, int d1,
@@ -55,4 +55,12 @@ void eight_bit_d_in_sel2_to_1(eight_bit_d *d1, eight_bit_d *d0,
   out->d[2] = switcher > 0 ? d0->d[2] : d1->d[2];
   out->d[1] = switcher > 0 ? d0->d[1] : d1->d[1];
   out->d[0] = switcher > 0 ? d0->d[0] : d1->d[0];
+}
+
+void edg_ff_calc_upt(edge_ff *st0, bool c, bool d) {
+  if(c && !st0->c) {
+  st0->q = d;
+  st0->qn = !d;
+  }
+  st0->c = c;
 }

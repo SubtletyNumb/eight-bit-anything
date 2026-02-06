@@ -1,4 +1,4 @@
-#include "./memory.h"
+#include "./headers/memory.h"
 #include <stdbool.h>
 
 void half_adder(bool i1, bool i0, two_bit_d *out) {
