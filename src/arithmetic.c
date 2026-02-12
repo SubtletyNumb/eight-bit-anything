@@ -55,3 +55,16 @@ void eight_bit_adder(bool sum_enable, bool cin, bool *cout, eight_bit_d *out,
   out->d[7] = res_7.d[0];
   *cout = res_7.d[1];
 }
+
+void invert_8bits_latch(eight_bit_d * out, bool invert) {
+      if(invert) {
+        out->d[7] = !out->d[7];
+        out->d[6] = !out->d[6];
+        out->d[5] = !out->d[5];
+        out->d[4] = !out->d[4];
+        out->d[3] = !out->d[3];
+        out->d[2] = !out->d[2];
+        out->d[1] = !out->d[1];
+        out->d[0] = !out->d[0];
+      }
+}

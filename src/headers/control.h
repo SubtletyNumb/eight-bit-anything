@@ -4,6 +4,9 @@ typedef enum {
   LDA = 10,
   STA = 20,
   ADD = 30,
+  ADC = 31,
+  SU = 40,
+  SUB = 41,
   JMP = 50,
   HLT = 255,
 } INSTRUCTIONS;

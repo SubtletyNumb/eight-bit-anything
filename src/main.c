@@ -80,6 +80,9 @@ int main() {
   edge_ff *adr[8] = {&adr_ff_0, &adr_ff_1, &adr_ff_2, &adr_ff_3,
                      &adr_ff_4, &adr_ff_5, &adr_ff_6, &adr_ff_7};
 
+  bool adr_carry_in = 0;
+  bool adr_carry_out = 0;
+
   edge_ff insc_ff_0 = {0, 1, 0};
   edge_ff insc_ff_1 = {0, 1, 1};
 
@@ -87,10 +90,10 @@ int main() {
   bool ctrl_sig_read_from_adr_latch = 0;
   bool ctrl_sig_write_ram = 0;
   bool ctrl_sig_add = 0;
+  bool ctrl_sig_adc = 0;
+  bool ctrl_sig_su = 0;
+  bool ctrl_sig_sub = 0;
   bool ctrl_sig_simple_jump = 0;
-
-  bool sum_cin = 0;
-  bool sum_cout = 0;
 
   int clk_time_in_ms = 200;
 
@@ -193,10 +196,16 @@ int main() {
                     acc[2]->q, acc[1]->q, acc[0]->q, ram);
 
     ctrl_sig_add = ins_code == ADD && (insc_ff_1.q && insc_ff_0.q && clk);
+    ctrl_sig_adc = ins_code == ADC && (insc_ff_1.q && insc_ff_0.q && clk);
+    ctrl_sig_su = ins_code == SU && (insc_ff_1.q && insc_ff_0.q && clk);
+    ctrl_sig_sub = ins_code == SUB && (insc_ff_1.q && insc_ff_0.q && clk);
 
-    eight_bit_adder(ctrl_sig_add, sum_cin, &sum_cout, &adder_out, acc[7]->q,
-                    acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q, acc[2]->q,
-                    acc[1]->q, acc[0]->q, ram_out.d[7], ram_out.d[6],
+    // make inverter for subtracting
+    // make sums between numbers greater than eight bits
+    eight_bit_adder(ctrl_sig_add || ctrl_sig_adc || ctrl_sig_su || ctrl_sig_sub,
+                    (adr_carry_in && ctrl_sig_adc), &adr_carry_out, &adder_out,
+                    acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q, acc[3]->q,
+                    acc[2]->q, acc[1]->q, acc[0]->q, ram_out.d[7], ram_out.d[6],
                     ram_out.d[5], ram_out.d[4], ram_out.d[3], ram_out.d[2],
                     ram_out.d[1], ram_out.d[0]);
 
