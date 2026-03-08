@@ -1,0 +1,1 @@
+gcgcc main.c memory.c control.c arithmetic.c ./headers/memory.h ./headers/control.h ./headers/arithmetic.h -o mainc main.c memory.c control.c arithmetic.c ./headers/memory.h ./headers/control.h ./headers/arithmetic.h -o main

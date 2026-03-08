@@ -1,7 +1,9 @@
 #include "./memory.h"
 
+
 typedef enum {
   LDA = 10,
+  CLA = 11,
   STA = 20,
   ADD = 30,
   ADC = 31,
@@ -10,6 +12,7 @@ typedef enum {
   JMP = 50,
   HLT = 255,
 } INSTRUCTIONS;
+
 
 int get_instruct_code(int d7, int d6, int d5, int d4, int d3, int d2, int d1,
                       int d0);

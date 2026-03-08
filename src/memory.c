@@ -91,6 +91,24 @@ void set_eight_bit_ff_from_ff(edge_ff *target_ff[], edge_ff *input_ff[],
   }
 }
 
+void clear_eight_bit_latch(eight_bit_d* target_latch) 
+{
+    for(int i = 0; i < 8; i++)
+    {
+        target_latch->d[i] = 0;
+    }
+}
+
+void clear_eight_bit_edg_latch(edge_ff *target_latch[]) 
+{
+    for(int i = 0; i < 8; i++)
+    {
+        target_latch[i]->q = 0;
+        target_latch[i]->qn = 1;
+        target_latch[i]->c = 0;
+    }
+}
+
 void read_8x1_edge_trgd_ff(edge_ff *ffs, eight_bit_d *out) {
   for (int i = 7; i >= 0; i--) {
     out->d[i] = ffs[i].q;

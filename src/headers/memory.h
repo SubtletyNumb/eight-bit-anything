@@ -20,6 +20,7 @@ typedef struct {
 } two_bit_d;
 
 int eight_to_one_idx(bool a2, bool a1, bool a0);
+
 int eight_to_256_idx(bool a7, bool a6, bool a5, bool a4, bool a3, bool a2,
                      bool a1, bool a0);
 
@@ -28,6 +29,10 @@ bool eight_to_one_selector(bool a2, bool a1, bool a0, eight_bit_d *data);
 void three_to_eight_decoder(bool a2, bool a1, bool a0, eight_bit_d *out);
 
 void read_eight_bit_latch(eight_bit_d *db0, eight_bit_d *out);
+
+void clear_eight_bit_latch(eight_bit_d *target_latch);
+
+void clear_eight_bit_edg_latch(edge_ff *target_latch[]);
 
 void write_eight_bit_ff(eight_bit_d *db0, edge_ff *out, bool clk);
 
