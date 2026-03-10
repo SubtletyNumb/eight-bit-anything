@@ -26,6 +26,10 @@ void get_ins_code_str(char* str, int ins_code) {
                       strcpy(str, "CLA");
                       break;
                   }
+        case STA: {
+                      strcpy(str, "STA");
+                      break;
+                  }
         case ADD: {
                       strcpy(str, "ADD");
                       break;
@@ -162,16 +166,32 @@ int main() {
     write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
 
     //STA
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
+
 
     //CLA
-    write_256x8_ram(0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, ram);
 
-     //ADD
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
+    //ADC
+    write_256x8_ram(0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, ram);
 
+    //STA
+    write_256x8_ram(0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, ram);
+    write_256x8_ram(0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, ram);
+
+    // LDA
+    write_256x8_ram(0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, ram);
+
+    // LDA
+    write_256x8_ram(0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
+
+
+
+    //
 
     // JUMP
     //      write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, ram);
@@ -180,7 +200,6 @@ int main() {
     // DATA
     write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, ram);
     write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, ram);
-
 
     while (true) {
         clk = !clk;
@@ -211,7 +230,7 @@ int main() {
                 ffA02.q, ffA01.q, ffA00.q);
 
         ins_code = get_inst_code_from_ffs(ins);
-        
+
 
         ctrl_sig_read_from_adr_latch = ins_code != HLT
             && insc_ff_1.q && !insc_ff_0.q && clk;
@@ -304,6 +323,7 @@ int main() {
                 get_inst_code_from_ffs(ins) == LDA &&
                 (insc_ff_1.q && insc_ff_0.q && clk));
 
+
         // WRITE ACCUMULATOR LATCH
         write_eight_bit_ff_from_latch(&acc_in, acc,
                 (insc_ff_1.q && insc_ff_0.q && clk &&
@@ -352,7 +372,7 @@ int main() {
         printf("%d%d%d%d%d%d%d%d\n", acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q,
                 acc[3]->q, acc[2]->q, acc[1]->q, acc[0]->q);
 
-        printf("OVERFLOW: %d\tUNDERFLOW: %d\n", adr_carry_out && (ins_code == ADD || ins_code == ADC),
+        printf("OVERFLOW: %d\tUNDERFLOW: %d\n", adr_carry_out,
                 adr_carry_out && (ins_code == SUB || ins_code == SU));
 
         // RESET INSTRUCTION CLOCK COUNTER
@@ -365,6 +385,7 @@ int main() {
             insc_ff_1.qn = 1;
             insc_ff_1.c = 1;
         }
+
     }
     return 0;
 }
