@@ -161,34 +161,9 @@ int main() {
     write_256x8_ram(0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, ram);
 
 
-    //ADD
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, ram);
+    //SU
+    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, ram);
     write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
-
-    //STA
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
-
-
-    //CLA
-    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, ram);
-
-    //ADC
-    write_256x8_ram(0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, ram);
-    write_256x8_ram(0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, ram);
-
-    //STA
-    write_256x8_ram(0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, ram);
-    write_256x8_ram(0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, ram);
-
-    // LDA
-    write_256x8_ram(0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
-    write_256x8_ram(0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, ram);
-
-    // LDA
-    write_256x8_ram(0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
-    write_256x8_ram(0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
-
 
 
     //
@@ -198,8 +173,9 @@ int main() {
     //      write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, ram);
 
     // DATA
-    write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, ram);
-    write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, ram);
+    
+    write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
+    write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, ram);
 
     while (true) {
         clk = !clk;
@@ -311,7 +287,7 @@ int main() {
         invert_8bits_latch(&adr_b_in, ins_code == SUB || ins_code == SU);
 
         eight_bit_adder(ctrl_sig_adc_active,
-                (adr_carry_out && ctrl_sig_adc) || ctrl_sig_su || ctrl_sig_sub,
+                (adr_carry_out && ctrl_sig_adc) || (adr_carry_out && ctrl_sig_sub) || ctrl_sig_su,
                 &adr_carry_out, 
                 &adder_out,
                 acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q,
@@ -372,7 +348,7 @@ int main() {
         printf("%d%d%d%d%d%d%d%d\n", acc[7]->q, acc[6]->q, acc[5]->q, acc[4]->q,
                 acc[3]->q, acc[2]->q, acc[1]->q, acc[0]->q);
 
-        printf("OVERFLOW: %d\tUNDERFLOW: %d\n", adr_carry_out,
+        printf("OVERFLOW: %d\tUNDERFLOW: %d\n", adr_carry_out && (ins_code == ADC || ins_code == ADD),
                 adr_carry_out && (ins_code == SUB || ins_code == SU));
 
         // RESET INSTRUCTION CLOCK COUNTER
