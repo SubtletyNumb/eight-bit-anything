@@ -10,6 +10,7 @@ typedef enum {
   SU = 40,
   SUB = 41,
   JMP = 50,
+  JMPZ = 51,
   HLT = 255,
 } INSTRUCTIONS;
 

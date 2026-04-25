@@ -18,7 +18,6 @@
 void get_ins_code_str(char* str, int ins_code) {
     switch (ins_code) {
         case LDA: {
-
                       strcpy(str, "LDA");
                       break;
                   }
@@ -72,6 +71,7 @@ int main() {
     edge_ff ffA05 = {0, 1, 1};
     edge_ff ffA06 = {0, 1, 1};
     edge_ff ffA07 = {0, 1, 1};
+
     edge_ff *ff_pc[8] = {&ffA00, &ffA01, &ffA02, &ffA03,
         &ffA04, &ffA05, &ffA06, &ffA07};
 
@@ -147,26 +147,33 @@ int main() {
 
     bool ctrl_sig_adc_active  = 0;
 
+    bool last_clk_tick = 0;
+
     int clk_time_in_ms = 2000;
 
     int ins_code = 0;
     char ins_code_str[50];
-
 
     // INITIAL INSTRUCTIONS
     write_256x8_ram(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, ram);
 
     // LDA
     write_256x8_ram(0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, ram);
-
+    write_256x8_ram(0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
 
     //SU
     write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, ram);
+
+    //LDA
+    write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, ram);
+
+    //SUB
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
 
 
-    //
 
     // JUMP
     //      write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, ram);
@@ -174,8 +181,12 @@ int main() {
 
     // DATA
     
-    write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
-    write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, ram);
+    write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, ram);
+    write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, ram);
+
+    write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, ram);
+    write_256x8_ram(1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, ram);
+
 
     while (true) {
         clk = !clk;
@@ -207,6 +218,9 @@ int main() {
 
         ins_code = get_inst_code_from_ffs(ins);
 
+        
+
+        last_clk_tick = insc_ff_1.q && !insc_ff_0.q && clk;
 
         ctrl_sig_read_from_adr_latch = ins_code != HLT
             && insc_ff_1.q && !insc_ff_0.q && clk;
@@ -238,9 +252,6 @@ int main() {
         printf("INSTRUCTION CODE:\t%s\n", ins_code_str);
         printf("%d%d%d%d%d%d%d%d\n", ins[7]->q, ins[6]->q, ins[5]->q, ins[4]->q,
                 ins[3]->q, ins[2]->q, ins[1]->q, ins[0]->q);
-
-
-
 
 
         // WRITE ADDRESS LATCH
@@ -310,10 +321,11 @@ int main() {
                    ins_code == SUB
                  )
                 ));
+                
         // WRITE JUMP
         ctrl_sig_simple_jump =
             ins_code == JMP && (insc_ff_1.q && !insc_ff_0.q && clk);
-
+            
         if (ctrl_sig_simple_jump) {
             set_eight_bit_ff_from_ff(ff_pc, adr, clk);    
             printf("NEW COUNTER OUT (JMP INSTRUCTION EXECUTED) :\n");
@@ -349,7 +361,7 @@ int main() {
                 acc[3]->q, acc[2]->q, acc[1]->q, acc[0]->q);
 
         printf("OVERFLOW: %d\tUNDERFLOW: %d\n", adr_carry_out && (ins_code == ADC || ins_code == ADD),
-                adr_carry_out && (ins_code == SUB || ins_code == SU));
+                !adr_carry_out && (ins_code == SU || ins_code == SUB));
 
         // RESET INSTRUCTION CLOCK COUNTER
         if (insc_ff_1.q && insc_ff_0.q && !clk) {
