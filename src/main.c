@@ -141,11 +141,23 @@ int main() {
     bool ctrl_sig_su = 0;
     bool ctrl_sig_sub = 0;
 
-    bool ctrl_sig_simple_jump = 0;
+    bool ctrl_sig_jump = 0;
+    bool ctrl_sig_jz = 0;
+    bool ctrl_sig_jnz = 0;
+    bool ctrl_sig_jc = 0;
+    bool ctrl_sig_jnc = 0;
 
     bool ctrl_sig_cla = 0;
 
     bool ctrl_sig_adc_active  = 0;
+
+    //FLAGS
+    bool zero_flag = 0;
+    bool notzero_flag = 0;
+    bool carry_flag = 0;
+    bool notcarry_flag = 0;
+
+    bool execution_cycle_flag = 0;
 
     bool last_clk_tick = 0;
 
@@ -272,6 +284,7 @@ int main() {
                 acc[2]->q, acc[1]->q, acc[0]->q, ram);
 
 
+        execution_cycle_flag = (insc_ff_1.q && insc_ff_0.q && clk);
 
 
 
@@ -311,6 +324,23 @@ int main() {
                 (insc_ff_1.q && insc_ff_0.q && clk));
 
 
+        chained_or_res_on_adder_result = 
+            (adder_out[8] || adder_out[7] || adder_out[6] || adder_out[5] || adder_out[4] || adder_out[3] ||
+            adder_out[2] || adder_out[1] || adder_out[0]);
+
+        //UPDATE FLAGS
+        zero_flag = !chained_or_res_on_adder_result;
+
+        notzero_flag = chained_or_res_on_adder_result;
+
+        carry_flag = adder_out;
+        notcarry_flag !carry_flag;
+
+
+
+
+
+
         // WRITE ACCUMULATOR LATCH
         write_eight_bit_ff_from_latch(&acc_in, acc,
                 (insc_ff_1.q && insc_ff_0.q && clk &&
@@ -323,10 +353,17 @@ int main() {
                 ));
                 
         // WRITE JUMP
-        ctrl_sig_simple_jump =
-            ins_code == JMP && (insc_ff_1.q && !insc_ff_0.q && clk);
-            
-        if (ctrl_sig_simple_jump) {
+        ctrl_sig_jump =
+            ins_code == JMP && execution_cycle_flag; 
+
+        ctrl_sig_jz = ins_code == JZ && execution_cycle_flag && zero_flag;
+        ctrl_sig_jnz = ins_code == JNZ && execution_cycle_flag && notzero_flag; 
+        ctrl_sig_jc = inscode == JC && execution_cycle_flag && carry_flag; 
+        ctrl_sig_jnc = inscode == JNC && execution_cycle_flag && notcarry_flag; 
+             
+        if (ctrl_sig_jump || ctrl_sig_jnz || ctrl_sig_jz || ctrl_sig_jc || ctrl_sig_jnc) {
+
+
             set_eight_bit_ff_from_ff(ff_pc, adr, clk);    
             printf("NEW COUNTER OUT (JMP INSTRUCTION EXECUTED) :\n");
             printf("%d%d%d%d%d%d%d%d\n\n", ffA07.q, ffA06.q, ffA05.q, ffA04.q,
@@ -340,6 +377,8 @@ int main() {
             insc_ff_1.q = 0;
             insc_ff_1.qn = 1;
             insc_ff_1.c = 1;
+
+
         }
 
         if(ctrl_sig_cla)
