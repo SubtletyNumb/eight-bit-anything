@@ -159,6 +159,8 @@ int main() {
 
     bool execution_cycle_flag = 0;
 
+    bool chained_or_res_on_adder_result = 0;
+
     bool last_clk_tick = 0;
 
     int clk_time_in_ms = 2000;
@@ -171,19 +173,37 @@ int main() {
 
     // LDA
     write_256x8_ram(0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
 
-    //SU
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, ram);
+    //ADD
+    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, ram);
+
+    //STA
+    write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
 
     //LDA
-    write_256x8_ram(0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
-    write_256x8_ram(0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, ram);
 
-    //SUB
-    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, ram);
-    write_256x8_ram(0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
+    //SU
+    write_256x8_ram(0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, ram);
+    write_256x8_ram(0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, ram);
+
+    //JZ
+    write_256x8_ram(0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, ram);
+
+    //LDA
+    write_256x8_ram(0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, ram);
+    write_256x8_ram(0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, ram);
+
+
+
+    //HLT
+    write_256x8_ram(0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, ram);
+
 
 
 
@@ -193,11 +213,12 @@ int main() {
 
     // DATA
     
-    write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, ram);
+    write_256x8_ram(1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, ram);
     write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, ram);
 
-    write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, ram);
-    write_256x8_ram(1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, ram);
+    write_256x8_ram(1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, ram);
+
+    write_256x8_ram(1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, ram);
 
 
     while (true) {
@@ -325,16 +346,16 @@ int main() {
 
 
         chained_or_res_on_adder_result = 
-            (adder_out[8] || adder_out[7] || adder_out[6] || adder_out[5] || adder_out[4] || adder_out[3] ||
-            adder_out[2] || adder_out[1] || adder_out[0]);
+            (adder_out.d[8] || adder_out.d[7] || adder_out.d[6] || adder_out.d[5] || adder_out.d[4] || adder_out.d[3] ||
+            adder_out.d[2] || adder_out.d[1] || adder_out.d[0]);
 
         //UPDATE FLAGS
         zero_flag = !chained_or_res_on_adder_result;
 
         notzero_flag = chained_or_res_on_adder_result;
 
-        carry_flag = adder_out;
-        notcarry_flag !carry_flag;
+        carry_flag = adr_carry_out;
+        notcarry_flag =  !carry_flag;
 
 
 
@@ -358,8 +379,8 @@ int main() {
 
         ctrl_sig_jz = ins_code == JZ && execution_cycle_flag && zero_flag;
         ctrl_sig_jnz = ins_code == JNZ && execution_cycle_flag && notzero_flag; 
-        ctrl_sig_jc = inscode == JC && execution_cycle_flag && carry_flag; 
-        ctrl_sig_jnc = inscode == JNC && execution_cycle_flag && notcarry_flag; 
+        ctrl_sig_jc = ins_code == JC && execution_cycle_flag && carry_flag; 
+        ctrl_sig_jnc = ins_code == JNC && execution_cycle_flag && notcarry_flag; 
              
         if (ctrl_sig_jump || ctrl_sig_jnz || ctrl_sig_jz || ctrl_sig_jc || ctrl_sig_jnc) {
 
